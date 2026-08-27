@@ -39,7 +39,6 @@
     line-height:1.35;
   }
 
-  /* CRT scanline + vignette overlay */
   body::before{
     content:"";
     position:fixed;
@@ -77,7 +76,6 @@
     z-index:1;
   }
 
-  /* ---- pixel panel: NES-style notched window ---- */
   .panel{
     background:var(--black);
     border:var(--px) solid var(--crimson);
@@ -97,7 +95,6 @@
 
   .panel + .panel{margin-top:24px;}
 
-  /* ---- header / title bar ---- */
   .titlebar{
     text-align:center;
     padding-bottom:6px;
@@ -117,7 +114,6 @@
     margin-bottom:10px;
   }
 
-  /* ---- pixel sprite avatar (rendered via JS grid) ---- */
   .sprite-wrap{
     display:flex;
     justify-content:center;
@@ -170,7 +166,6 @@
   }
   @media (prefers-reduced-motion: reduce){ .cursor{animation:none; opacity:1;} }
 
-  /* ---- section labels ---- */
   .section-label{
     font-family:'Press Start 2P';
     font-size:11px;
@@ -182,74 +177,6 @@
   }
   .section-label::before{content:"▸";}
 
-  /* ---- stat bars ---- */
-  .stat-row{margin-bottom:12px;}
-  .stat-row:last-child{margin-bottom:0;}
-  .stat-name{
-    display:flex;
-    justify-content:space-between;
-    font-size:18px;
-    margin-bottom:4px;
-    color:var(--bone);
-  }
-  .stat-name span:last-child{color:var(--muted);}
-  .bar-outer{
-    height:14px;
-    background:var(--black);
-    border:2px solid var(--blood);
-    padding:2px;
-  }
-  .bar-inner{
-    height:100%;
-    width:0%;
-    background:repeating-linear-gradient(
-      90deg, var(--crimson) 0 6px, var(--ember) 6px 8px
-    );
-    transition:width 1.1s steps(20);
-  }
-  @media (prefers-reduced-motion: reduce){ .bar-inner{transition:none;} }
-
-  /* ---- inventory / interests grid ---- */
-  .inventory{
-    display:grid;
-    grid-template-columns:repeat(4, 1fr);
-    gap:8px;
-  }
-  .slot{
-    aspect-ratio:1;
-    border:2px solid var(--blood);
-    background:var(--panel);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:22px;
-    position:relative;
-    cursor:default;
-  }
-  .slot:hover{
-    border-color:var(--ember);
-    background:var(--blood);
-  }
-  .slot .tip{
-    position:absolute;
-    bottom:110%;
-    left:50%;
-    transform:translateX(-50%);
-    background:var(--black);
-    border:2px solid var(--crimson);
-    color:var(--bone);
-    font-size:13px;
-    font-family:'VT323';
-    padding:3px 6px;
-    white-space:nowrap;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .15s;
-    z-index:5;
-  }
-  .slot:hover .tip{opacity:1;}
-
-  /* ---- links menu ---- */
   .menu{list-style:none;margin:0;padding:0;}
   .menu li{margin-bottom:10px;}
   .menu li:last-child{margin-bottom:0;}
@@ -301,21 +228,11 @@
 <div class="wrap">
 
   <div class="panel titlebar">
-    <div class="eyebrow">// LOADING PROFILE.DAT</div>
+    <div class="eyebrow">// PROFILE</div>
     <div class="sprite-wrap"><div id="sprite"></div></div>
     <h1 class="name">AHSOORAH</h1>
     <div class="handle">@ahsoorah</div>
     <div class="tagline"><span id="typewriter"></span><span class="cursor">&nbsp;</span></div>
-  </div>
-
-  <div class="panel">
-    <p class="section-label">CHARACTER STATS</p>
-    <div id="stats"></div>
-  </div>
-
-  <div class="panel">
-    <p class="section-label">FIND ME</p>
-    <div class="inventory" id="inventory"></div>
   </div>
 
   <div class="panel">
@@ -324,7 +241,7 @@
   </div>
 
   <footer>
-    <span class="coin blink">be good for me ok?/span>
+    <span class="coin blink">be good for me ok?</span>
     &copy; <span id="year"></span> ahsoorah.fyi — i want u
   </footer>
 
@@ -335,7 +252,6 @@
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- pixel sprite: 11x11 skull ---------- */
   const rows = [
     "..OOOOOOO..",
     ".OOOOOOOOO.",
@@ -360,8 +276,7 @@
     });
   });
 
-  /* ---------- typewriter tagline ---------- */
-  const line = "hey champs";
+  const line = "hey champs. basically lmk if u would like to be friends on discord but dont ask me to play shi with u. they call me the lone wolf of gaming.";
   const tw = document.getElementById('typewriter');
   if(reduceMotion){
     tw.textContent = line;
@@ -376,52 +291,6 @@
     })();
   }
 
-  /* ---------- stats ---------- */
-  const stats = [
-    { name: "STRENGTH", val: 88 },
-    { name: "STRENGTH", val: 12 },
-    { name: "STRENGTH", val: 61 },
-    { name: "STRENGTH", val: 40 },
-    { name: "SPEED", val: 99 }
-  ];
-  const statsEl = document.getElementById('stats');
-  stats.forEach(s=>{
-    const row = document.createElement('div');
-    row.className = 'stat-row';
-    row.innerHTML = `
-      <div class="stat-name"><span>${s.name}</span><span>${s.val}/100</span></div>
-      <div class="bar-outer"><div class="bar-inner" style="width:0%"></div></div>
-    `;
-    statsEl.appendChild(row);
-  });
-  requestAnimationFrame(()=>{
-    setTimeout(()=>{
-      document.querySelectorAll('.bar-inner').forEach((bar, idx)=>{
-        bar.style.width = stats[idx].val + '%';
-      });
-    }, 150);
-  });
-
-  /* ---------- / interests ---------- */
-  const items = [
-    { icon:"🎮", tip:"gaming" },
-    { icon:"☕", tip:"caffeine" },
-    { icon:"🎧", tip:"music" },
-    { icon:"📚", tip:"reading" },
-    { icon:"🌙", tip:"night owl" },
-    { icon:"🍜", tip:"snacks" },
-    { icon:"🖤", tip:"chronic online" },
-    { icon:"🎲", tip:"chaos energy" }
-  ];
-  const invEl = document.getElementById('inventory');
-  items.forEach(it=>{
-    const slot = document.createElement('div');
-    slot.className = 'slot';
-    slot.innerHTML = `${it.icon}<span class="tip">${it.tip}</span>`;
-    invEl.appendChild(slot);
-  });
-
-  /* ---------- links menu ---------- */
   const links = [
     { label:"instagram", href:"https://instagram.com/" },
     { label:"twitter / x", href:"https://x.com/" },
