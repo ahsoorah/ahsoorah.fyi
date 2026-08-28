@@ -211,13 +211,14 @@
   .subdomains-list li{margin-bottom:10px;}
   .subdomains-list li:last-child{margin-bottom:0;}
   .subdomain-item{
-    display:block;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    text-decoration:none;
     border:2px solid var(--blood);
     padding:10px 12px;
-    font-size:19px;
     color:var(--bone);
     background:var(--panel);
-    text-decoration:none;
     transition:transform .08s, background .08s, border-color .08s;
   }
   .subdomain-item:hover, .subdomain-item:focus-visible{
@@ -228,16 +229,22 @@
     outline:none;
   }
   .subdomain-url{
-    display:block;
+    font-size:19px;
     font-weight:bold;
-    color:var(--ember);
-    margin-bottom:4px;
+    color:var(--bone);
+  }
+  .subdomain-item:hover .subdomain-url, .subdomain-item:focus-visible .subdomain-url{
+    color:var(--black);
   }
   .subdomain-desc{
-    display:block;
     font-size:18px;
-    color:var(--muted);
+    color:var(--bone);
   }
+  .subdomain-item:hover .subdomain-desc, .subdomain-item:focus-visible .subdomain-desc{
+    color:var(--black);
+  }
+  .subdomain-arrow{opacity:0; transition:opacity .08s;}
+  .subdomain-item:hover .subdomain-arrow, .subdomain-item:focus-visible .subdomain-arrow{opacity:1;}
 
   footer{
     text-align:center;
@@ -317,7 +324,7 @@
     const li = document.createElement('li');
     const href = s.href ? ` href="${s.href}" target="_blank" rel="noopener noreferrer"` : "";
     const tag = s.href ? 'a' : 'div';
-    li.innerHTML = `<${tag} class="subdomain-item"${href}><span class="subdomain-url">${s.url}</span><span class="subdomain-desc">${s.desc}</span></${tag}>`;
+    li.innerHTML = `<${tag} class="subdomain-item"${href}><span class="subdomain-arrow">▶</span> <span class="subdomain-url">${s.url}</span><span class="subdomain-desc">${s.desc}</span></${tag}>`;
     subdomainsEl.appendChild(li);
   });
 
