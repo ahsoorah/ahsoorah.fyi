@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>asura/ahsoorah</title>
+<title>ahsoorah.fyi</title>
 <meta name="description" content="asura's bio">
 
 <meta property="og:title" content="asura">
@@ -276,7 +276,7 @@
 <div class="wrap">
 
   <div class="panel titlebar">
-    <div class="eyebrow">// me</div>
+    <div class="eyebrow">// PROFILE</div>
     <div class="sprite-wrap"><img src="dawg.jpg" alt="dawg" class="profile-pic"></div>
     <h1 class="name">asura</h1>
     <div class="handle">@ahsoorah</div>
@@ -305,21 +305,116 @@
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const line = "hey champs. basically lmk if u would like to be friends on discord but please dont ask me to play shi with u. they call me the lone wolf of gaming. <- aura";
+  const fullLine = "hey champs. basically lmk if u would like to be friends on discord but please dont ask me to play shi with u. they call me the lone wolf of gaming. <- aura";
   const tw = document.getElementById('typewriter');
-  if(reduceMotion){
-    tw.textContent = line;
-  } else {
-    let i = 0;
-    (function type(){
-      if(i <= line.length){
-        tw.textContent = line.slice(0, i);
-        i++;
-        setTimeout(type, 32);
-      }
-    })();
+
+  // storage key / cookie name
+  const STORAGE_KEY = 'bio_typing_played_v1';
+
+  function markPlayed() {
+    try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+    try { document.cookie = STORAGE_KEY + '=1; max-age=' + (60*60*24*365) + '; path=/'; } catch (e) {}
+  }
+  function hasPlayed() {
+    try { if (localStorage.getItem(STORAGE_KEY)) return true; } catch(e){}
+    try { if (document.cookie.split(';').some(c=>c.trim().startsWith(STORAGE_KEY+'='))) return true; } catch(e){}
+    return false;
   }
 
+  // Typing animation with single simulated typo
+  async function playTypingWithTypo(line, typoWord, typoReplacement, options = {}){
+    const baseDelay = options.baseDelay || 32;
+    const pauseAfterTypo = options.pauseAfterTypo || 700; // ms pause to "acknowledge" typo
+    const backspaceDelay = options.backspaceDelay || 80;
+
+    // find the correct word index
+    const wordIndex = line.indexOf(typoWord);
+    if(wordIndex === -1){
+      // no word to typo; fallback to plain typing
+      await typeString(line, baseDelay);
+      return;
+    }
+
+    const before = line.slice(0, wordIndex);
+    const after = line.slice(wordIndex + typoWord.length);
+
+    // type before
+    await typeString(before, baseDelay);
+
+    // type the typo instead of the real word
+    await typeString(typoReplacement, baseDelay);
+
+    // brief pause to "notice" the typo
+    await wait(pauseAfterTypo);
+
+    // backspace the typo
+    for(let i = 0; i < typoReplacement.length; i++){
+      await backspaceOnce(backspaceDelay);
+    }
+
+    // type the correct word
+    await typeString(typoWord, baseDelay);
+
+    // continue with the remainder
+    await typeString(after, baseDelay);
+  }
+
+  function wait(ms){ return new Promise(res=>setTimeout(res, ms)); }
+
+  async function typeString(str, delay){
+    for(let i=0;i<str.length;i++){
+      tw.textContent += str[i];
+      await wait(delay + Math.floor(Math.random()*8));
+    }
+  }
+
+  function backspaceOnce(delay){
+    return new Promise(res=>{
+      setTimeout(()=>{
+        tw.textContent = tw.textContent.slice(0, -1);
+        res();
+      }, delay);
+    });
+  }
+
+  (async function runTyping(){
+    if(reduceMotion || hasPlayed()){
+      // if user prefers reduced motion OR we've already played, show full text immediately
+      tw.textContent = fullLine;
+      markPlayed();
+      return;
+    }
+
+    // choose a word to typo: prefer 'ask' if present, otherwise pick 'friends' etc.
+    const preferred = ['ask','friends','discord','lmk'];
+    let chosen = preferred.find(w=> fullLine.indexOf(w) !== -1);
+    if(!chosen){
+      // fallback: pick the first short word of line
+      chosen = fullLine.split(' ').find(w=> w.length >= 3) || 'ask';
+    }
+
+    // construct a simple typo for the chosen word: swap last two letters or change one letter
+    function makeTypo(word){
+      if(word.length >= 3){
+        // change the middle letter slightly (e -> r style) or swap last two
+        let arr = word.split('');
+        const i = Math.max(1, Math.floor(arr.length/2));
+        // replace with adjacent keyboard-like letter for believable typo
+        const swapMap = {'k':'j','s':'a','a':'s','e':'r','r':'e','i':'o','o':'p','u':'y','y':'t','t':'r','n':'m','m':'n'};
+        if(swapMap[arr[i]]) arr[i] = swapMap[arr[i]]; else { const j=i+1 < arr.length? i+1 : i-1; [arr[i], arr[j]] = [arr[j], arr[i]]; }
+        return arr.join('');
+      }
+      return word + 'j';
+    }
+
+    const typo = makeTypo(chosen);
+
+    await playTypingWithTypo(fullLine, chosen, typo, { baseDelay:32, pauseAfterTypo:700, backspaceDelay:80 });
+
+    markPlayed();
+  })();
+
+  // --- Subdomains rendering (fixed to avoid innerHTML truncation issues) ---
   const subdomains = [
     { url:"manager.ahsoorah.fyi", desc:"fuck off", href:"https://manager.ahsoorah.fyi" },
     { url:"clips.ahsoorah.fyi", desc:"my medal.tv replacement" }
@@ -327,12 +422,35 @@
   const subdomainsEl = document.getElementById('subdomains');
   subdomains.forEach(s=>{
     const li = document.createElement('li');
-    const href = s.href ? ` href="${s.href}" target="_blank" rel="noopener noreferrer"` : "";
     const tag = s.href ? 'a' : 'div';
-    li.innerHTML = `<${tag} class="subdomain-item"${href}><span class="subdomain-arrow">▶</span><div class="subdomain-content"><span class="subdomain-url">${s.url}</span><span class="subdomain-desc">${s.desc}</span></div></${tag}>`;
+    const el = document.createElement(tag);
+    el.className = 'subdomain-item';
+    if(s.href){ el.href = s.href; el.target = '_blank'; el.rel = 'noopener noreferrer'; }
+
+    const arrow = document.createElement('span');
+    arrow.className = 'subdomain-arrow';
+    arrow.textContent = '▶';
+
+    const content = document.createElement('div');
+    content.className = 'subdomain-content';
+
+    const urlEl = document.createElement('span');
+    urlEl.className = 'subdomain-url';
+    urlEl.textContent = s.url;
+
+    const descEl = document.createElement('span');
+    descEl.className = 'subdomain-desc';
+    descEl.textContent = s.desc || '';
+
+    content.appendChild(urlEl);
+    content.appendChild(descEl);
+    el.appendChild(arrow);
+    el.appendChild(content);
+    li.appendChild(el);
     subdomainsEl.appendChild(li);
   });
 
+  // --- Links ---
   const links = [
     { label:"steam", href:"https://steamcommunity.com/id/ahsoorah/" },
     { label:"x", href:"https://x.com/ahsoorah" },
@@ -342,9 +460,17 @@
   const linksEl = document.getElementById('links');
   links.forEach(l=>{
     const li = document.createElement('li');
-    li.innerHTML = `<a href="${l.href}" target="_blank" rel="noopener noreferrer"><span class="arrow">▶</span> ${l.label}</a>`;
+    const a = document.createElement('a');
+    a.href = l.href;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.innerHTML = `<span class="arrow">▶</span> ${escapeHtml(l.label)}`;
+    li.appendChild(a);
     linksEl.appendChild(li);
   });
+
+  function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
 </script>
 
 </body>
