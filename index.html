@@ -208,13 +208,13 @@
   .menu a:hover .arrow, .menu a:focus-visible .arrow{opacity:1;}
 
   .subdomains-list{list-style:none;margin:0;padding:0;}
-  .subdomains-list li{margin-bottom:8px;}
+  .subdomains-list li{margin-bottom:10px;}
   .subdomains-list li:last-child{margin-bottom:0;}
   .subdomain-item{
     display:block;
     border:2px solid var(--blood);
     padding:10px 12px;
-    font-size:16px;
+    font-size:19px;
     color:var(--bone);
     background:var(--panel);
     text-decoration:none;
@@ -231,11 +231,11 @@
     display:block;
     font-weight:bold;
     color:var(--ember);
-    margin-bottom:2px;
+    margin-bottom:4px;
   }
   .subdomain-desc{
     display:block;
-    font-size:14px;
+    font-size:15px;
     color:var(--muted);
   }
 
@@ -309,13 +309,15 @@
   }
 
   const subdomains = [
-    { url:"manager.ahsoorah.fyi", desc:"fuck off" },
+    { url:"manager.ahsoorah.fyi", desc:"fuck off", href:"https://manager.ahsoorah.fyi" },
     { url:"clips.ahsoorah.fyi", desc:"my medal.tv replacement" }
   ];
   const subdomainsEl = document.getElementById('subdomains');
   subdomains.forEach(s=>{
     const li = document.createElement('li');
-    li.innerHTML = `<div class="subdomain-item"><span class="subdomain-url">${s.url}</span><span class="subdomain-desc">${s.desc}</span></div>`;
+    const href = s.href ? ` href="${s.href}" target="_blank" rel="noopener noreferrer"` : "";
+    const tag = s.href ? 'a' : 'div';
+    li.innerHTML = `<${tag} class="subdomain-item"${href}><span class="subdomain-url">${s.url}</span><span class="subdomain-desc">${s.desc}</span></${tag}>`;
     subdomainsEl.appendChild(li);
   });
 
