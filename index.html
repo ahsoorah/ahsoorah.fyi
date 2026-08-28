@@ -321,7 +321,7 @@
     return false;
   }
 
-  // Typing animation with single simulated typo
+  // Typing animation with single simulated typo (now random but plausible)
   async function playTypingWithTypo(line, typoWord, typoReplacement, options = {}){
     const baseDelay = options.baseDelay || 32;
     const pauseAfterTypo = options.pauseAfterTypo || 700; // ms pause to "acknowledge" typo
@@ -385,26 +385,63 @@
       return;
     }
 
-    // choose a word to typo: prefer 'ask' if present, otherwise pick 'friends' etc.
+    // choose a word to typo: pick randomly from matches of preferred words
     const preferred = ['ask','friends','discord','lmk'];
-    let chosen = preferred.find(w=> fullLine.indexOf(w) !== -1);
-    if(!chosen){
-      // fallback: pick the first short word of line
-      chosen = fullLine.split(' ').find(w=> w.length >= 3) || 'ask';
+    const candidates = preferred.filter(w=> fullLine.indexOf(w) !== -1);
+    let chosen;
+    if(candidates.length){
+      chosen = candidates[Math.floor(Math.random()*candidates.length)];
+    } else {
+      // fallback: pick a random word of the line with length >=3
+      const words = fullLine.split(/\s+/).filter(w=> w.replace(/[^a-zA-Z]/g,'').length >= 3);
+      chosen = words.length ? words[Math.floor(Math.random()*words.length)].replace(/[^a-zA-Z]/g,'') : 'ask';
     }
 
-    // construct a simple typo for the chosen word: swap last two letters or change one letter
+    // construct a plausible typo for the chosen word using multiple strategies
     function makeTypo(word){
-      if(word.length >= 3){
-        // change the middle letter slightly (e -> r style) or swap last two
-        let arr = word.split('');
-        const i = Math.max(1, Math.floor(arr.length/2));
-        // replace with adjacent keyboard-like letter for believable typo
-        const swapMap = {'k':'j','s':'a','a':'s','e':'r','r':'e','i':'o','o':'p','u':'y','y':'t','t':'r','n':'m','m':'n'};
-        if(swapMap[arr[i]]) arr[i] = swapMap[arr[i]]; else { const j=i+1 < arr.length? i+1 : i-1; [arr[i], arr[j]] = [arr[j], arr[i]]; }
-        return arr.join('');
-      }
-      return word + 'j';
+      if(!word) return word + 'j';
+      const swapMap = {'k':'j','j':'k','s':'a','a':'s','e':'r','r':'e','i':'o','o':'p','u':'y','y':'t','t':'r','n':'m','m':'n','l':'k','p':'o','d':'s'};
+      const strategies = [
+        // swap two adjacent letters
+        w => {
+          const a = w.split('');
+          if(a.length < 2) return w + 'j';
+          const i = Math.floor(Math.random()*(a.length-1));
+          [a[i], a[i+1]] = [a[i+1], a[i]];
+          return a.join('');
+        },
+        // replace a letter with keyboard-adjacent letter
+        w => {
+          const a = w.split('');
+          const i = Math.floor(Math.random()*a.length);
+          const lower = a[i].toLowerCase();
+          if(swapMap[lower]){
+            const repl = swapMap[lower];
+            a[i] = (a[i] === a[i].toUpperCase()) ? repl.toUpperCase() : repl;
+            return a.join('');
+          }
+          // fallback to swapping
+          if(a.length > 1){ const j = (i+1<a.length)? i+1 : i-1; [a[i],a[j]]=[a[j],a[i]]; }
+          return a.join('');
+        },
+        // duplicate a letter
+        w => {
+          const a = w.split('');
+          const i = Math.floor(Math.random()*a.length);
+          a.splice(i, 0, a[i]);
+          return a.join('');
+        },
+        // insert a nearby plausible character
+        w => {
+          const a = w.split('');
+          const i = Math.floor(Math.random()*(a.length+1));
+          const candidates = Object.keys(swapMap);
+          const pick = candidates[Math.floor(Math.random()*candidates.length)];
+          a.splice(i,0,pick);
+          return a.join('');
+        }
+      ];
+      return strategies[Math.floor(Math.random()*strategies.length)](word);
     }
 
     const typo = makeTypo(chosen);
