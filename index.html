@@ -207,6 +207,38 @@
   .menu a .arrow{opacity:0; transition:opacity .08s;}
   .menu a:hover .arrow, .menu a:focus-visible .arrow{opacity:1;}
 
+  .subdomains-list{list-style:none;margin:0;padding:0;}
+  .subdomains-list li{margin-bottom:8px;}
+  .subdomains-list li:last-child{margin-bottom:0;}
+  .subdomain-item{
+    display:block;
+    border:2px solid var(--blood);
+    padding:10px 12px;
+    font-size:16px;
+    color:var(--bone);
+    background:var(--panel);
+    text-decoration:none;
+    transition:transform .08s, background .08s, border-color .08s;
+  }
+  .subdomain-item:hover, .subdomain-item:focus-visible{
+    background:var(--crimson);
+    border-color:var(--ember);
+    color:var(--black);
+    transform:translateX(4px);
+    outline:none;
+  }
+  .subdomain-url{
+    display:block;
+    font-weight:bold;
+    color:var(--ember);
+    margin-bottom:2px;
+  }
+  .subdomain-desc{
+    display:block;
+    font-size:14px;
+    color:var(--muted);
+  }
+
   footer{
     text-align:center;
     font-size:15px;
@@ -240,6 +272,11 @@
   </div>
 
   <div class="panel">
+    <p class="section-label">ACTIVE SUBDOMAINS</p>
+    <ul class="subdomains-list" id="subdomains"></ul>
+  </div>
+
+  <div class="panel">
     <p class="section-label">REACH OUT PROFESSIONALLY</p>
     <ul class="menu" id="links"></ul>
   </div>
@@ -270,6 +307,17 @@
       }
     })();
   }
+
+  const subdomains = [
+    { url:"manager.ahsoorah.fyi", desc:"fuck off" },
+    { url:"clips.ahsoorah.fyi", desc:"my medal.tv replacement" }
+  ];
+  const subdomainsEl = document.getElementById('subdomains');
+  subdomains.forEach(s=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<div class="subdomain-item"><span class="subdomain-url">${s.url}</span><span class="subdomain-desc">${s.desc}</span></div>`;
+    subdomainsEl.appendChild(li);
+  });
 
   const links = [
     { label:"steam", href:"https://steamcommunity.com/id/ahsoorah/" },
