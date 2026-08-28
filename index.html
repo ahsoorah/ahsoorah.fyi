@@ -204,7 +204,27 @@
     transform:translateX(4px);
     outline:none;
   }
-  .menu a .arrow{opacity:0; transition:opacity .08s;}
+
+  .menu-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: filter .08s;
+  }
+
+  .menu-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .menu a:hover .menu-icon svg, .menu a:focus-visible .menu-icon svg {
+    filter: brightness(0) saturate(100%);
+  }
+
+  .menu a .arrow{opacity:0; transition:opacity .08s; margin-left:auto;}
   .menu a:hover .arrow, .menu a:focus-visible .arrow{opacity:1;}
 
   .subdomains-list{list-style:none;margin:0;padding:0;}
@@ -487,12 +507,28 @@
     subdomainsEl.appendChild(li);
   });
 
-  // --- Links ---
+  // --- Links with SVG icons ---
   const links = [
-    { label:"steam", href:"https://steamcommunity.com/id/ahsoorah/" },
-    { label:"x", href:"https://x.com/ahsoorah" },
-    { label:"youtube", href:"https://www.youtube.com/@ahsoorah" },
-    { label:"discord: @su.ri", href:"https://discord.com/" }
+    { 
+      label:"steam", 
+      svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#171A21"/><path d="M18 8.5a4.5 4.5 0 0 0-8.69-1.6l-4.2 1.53A3.5 3.5 0 1 0 8.7 18.09l3.06 1.12a4.5 4.5 0 1 0 5.18-6.92l-2.02-.72c.04-.32.08-.64.08-.97a4.5 4.5 0 0 0 3-4.1z" fill="#fff"/><circle cx="17" cy="7" r="2" fill="#0E141B"/></svg>',
+      href:"https://steamcommunity.com/id/ahsoorah/" 
+    },
+    { 
+      label:"x", 
+      svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#000"/><path d="M18.36 6H20l-5.29 5.73L20.35 18H16.48l-3.59-4.11L8.8 18H7.23l5.37-5.81L4.07 6H8.01l3.23 3.72L15.2 6zm-.68 10l-3.87-4.38-4.1 4.38h1.35l2.76-2.97L16.02 16h1.66z" fill="#fff"/></svg>',
+      href:"https://x.com/ahsoorah" 
+    },
+    { 
+      label:"youtube", 
+      svg:'<svg height="24" width="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#FF0000"/><path d="M10 16l6-4-6-4v8z" fill="#fff"/></svg>',
+      href:"https://www.youtube.com/@ahsoorah" 
+    },
+    { 
+      label:"discord: @su.ri", 
+      svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#5865F2"/><path d="M17.72 7.08A13.1 13.1 0 0 0 15.44 6a.13.13 0 0 0-.14.06c-.2.34-.42.78-.58 1.13-.96-.15-1.92-.15-2.87 0-.16-.36-.38-.79-.58-1.13A.13.13 0 0 0 11.12 6c-.83.2-1.64.48-2.41.84a.11.11 0 0 0-.05.05C6.01 9.07 5.23 10.96 5.33 12.83a.13.13 0 0 0 .05.08c1 .7 1.98 1.13 2.93 1.42a.13.13 0 0 0 .14-.05c.23-.32.44-.66.61-.99a.13.13 0 0 0-.07-.18c-.31-.12-.61-.27-.89-.45a.13.13 0 0 1-.01-.22c.06-.05.12-.1.18-.14a.13.13 0 0 1 .13-.01c1.87.85 3.89.85 5.75 0a.13.13 0 0 1 .13.01l.18.14a.13.13 0 0 1-.01.22c-.28.18-.58.33-.89.45a.13.13 0 0 0-.07.18c.18.34.39.67.62.99a.13.13 0 0 0 .14.05c.93-.29 1.91-.72 2.91-1.42a.13.13 0 0 0 .05-.08c.15-2.16-.67-4.05-2.31-5.7zM9.31 13.85c-.41 0-.74-.37-.74-.82 0-.45.33-.82.74-.82s.75.37.75.82c0 .45-.34.82-.75.82zm5.33 0c-.41 0-.74-.37-.74-.82 0-.45.33-.82.74-.82.41 0 .75.37.75.82 0 .45-.33.82-.75.82z" fill="#fff"/></svg>',
+      href:"https://discord.com/" 
+    }
   ];
   const linksEl = document.getElementById('links');
   links.forEach(l=>{
@@ -501,7 +537,21 @@
     a.href = l.href;
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
-    a.innerHTML = `<span class="arrow">▶</span> ${escapeHtml(l.label)}`;
+    
+    const icon = document.createElement('span');
+    icon.className = 'menu-icon';
+    icon.innerHTML = l.svg;
+    
+    const label = document.createElement('span');
+    label.textContent = escapeHtml(l.label);
+    
+    const arrow = document.createElement('span');
+    arrow.className = 'arrow';
+    arrow.textContent = '▶';
+    
+    a.appendChild(icon);
+    a.appendChild(label);
+    a.appendChild(arrow);
     li.appendChild(a);
     linksEl.appendChild(li);
   });
