@@ -328,23 +328,21 @@
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const fullLine = "hey champs. basically lmk if u would like to be friends on discord but please dont ask me to play shi with u. they call me the lone wolf of gaming. <- aura";
+  const fullLine = "hey champs. basically lmk if u would like to be friends on discord but please dont ask me to play anything with u. i dont believe in multiplayer";
   const tw = document.getElementById('typewriter');
 
-  // storage key / cookie name
+  // storage key 
   const STORAGE_KEY = 'bio_typing_played_v1';
 
   function markPlayed() {
-    try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
-    try { document.cookie = STORAGE_KEY + '=1; max-age=' + (60*60*24*365) + '; path=/'; } catch (e) {}
+    try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
   }
   function hasPlayed() {
-    try { if (localStorage.getItem(STORAGE_KEY)) return true; } catch(e){}
-    try { if (document.cookie.split(';').some(c=>c.trim().startsWith(STORAGE_KEY+'='))) return true; } catch(e){}
+    try { return sessionStorage.getItem(STORAGE_KEY) === '1'; } catch (e) {}
     return false;
   }
 
-  // Typing animation with single simulated typo (now random but plausible)
+  // typing animation with simulated typo 
   async function playTypingWithTypo(line, typoWord, typoReplacement, options = {}){
     const baseDelay = options.baseDelay || 32;
     const pauseAfterTypo = options.pauseAfterTypo || 700; // ms pause to "acknowledge" typo
@@ -474,7 +472,7 @@
     markPlayed();
   })();
 
-  // --- Subdomains rendering (fixed to avoid innerHTML truncation issues) ---
+  // --- subdomain rendering
   const subdomains = [
     { url:"manager.ahsoorah.fyi", desc:"flare manager, locked", href:"https://manager.ahsoorah.fyi" },
     { url:"clips.ahsoorah.fyi/", desc:"flare clips" }
@@ -511,7 +509,7 @@
     subdomainsEl.appendChild(li);
   });
 
-  // --- Links with SVG icons (official Simple Icons brand marks) ---
+  // svg icons
   const links = [
     { 
       label:"steam", 
